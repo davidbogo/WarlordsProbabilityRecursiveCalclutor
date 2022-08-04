@@ -1,4 +1,5 @@
 import java.util.*;
+import java.lang.Thread;
 public class ProbabilityCalculator {
     /**
      * Written by: David Bogoslavsky
@@ -16,7 +17,7 @@ public class ProbabilityCalculator {
      * a number in the die bigger than the strength of the opponent, while the opponent draws a smaller or equal number
      * to your warriors' strength. In order to get hit by the opponent, your warrior needs to draw exactly the opposite,
      * meaning:  your warrior needs to draw a number in the die smaller or equal to the strength of the opponent,
-     * while the opponent draws a bigger number than your warriors' strength. Other cases cause another drop of the die,
+     * while the opponent draws a bigger number than your warrior's strength. Other cases cause another drop of the die,
      * so they are meaningless to our calculations.
      * As mentioned before, a warrior needs to be hit *twice* in order to die, so there are multiple options for a win.
      * For now, it's the user's responsibility to calculate the warriors real strength via the Warlords strength system.
@@ -24,7 +25,10 @@ public class ProbabilityCalculator {
      * @param args is not being worked with.
      */
     public static void main(String[] args) {
-        RunningCalculations probabilityCalculator = new RunningCalculations();
-        probabilityCalculator.run();
+        //Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        RunningCalculations probabilityCalculator1 = new RunningCalculations();
+        probabilityCalculator1.run();
+        ThreadedProbabilityCalculator probabilityCalculator = new ThreadedProbabilityCalculator();
+        probabilityCalculator.start();
     }
 }
