@@ -29,7 +29,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
         eTroopLives = 2;
         returnProbability = 0;
         numberOfThreads = 1;
-        maxNumOfThreads = 100;
+        maxNumOfThreads = 16;
         acceptParamsOnce = true;
         announceOnce = true;
     }
@@ -59,6 +59,10 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             return true;
         }
         return false;
+    }
+
+    public synchronized void reduceThreads(int reducedThreads) {
+        numberOfThreads -= reducedThreads;
     }
 
     public float getReturnProbability() {
@@ -107,7 +111,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
         winInSingleBattleProbability = (dieShowWin) / (dieShowWin + dieShowLose);
         loseInSingleBattleProbability = 1 - winInSingleBattleProbability;
         if ((myTroopLives == 2) && (enemyTroopLives == 2)) {
-            if (!addThreads(4)) { //we check whether we are allowed to create more threads. If not, we use
+            if (!addThreads(3)) { //we check whether we are allowed to create more threads. If not, we use
                 //our regular recursion in that same thread
                 returnProbability = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
                         myTroopLives, enemyTroopLives);
@@ -119,30 +123,36 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                     numberOfTroop, (numberOfEnemy + 1), 1, 2);
             ThreadedProbabilityCalculator loseLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
                     (numberOfTroop + 1), numberOfEnemy, 2, 2);
-            ThreadedProbabilityCalculator loseWinLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
-                    (numberOfTroop + 1), numberOfEnemy, 2, 1);
+            //ThreadedProbabilityCalculator loseWinLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
+            //        (numberOfTroop + 1), numberOfEnemy, 2, 1);
+            float loseWinLose = -1;
             try {
                 winWin.start();
                 winLoseWin.start();
                 loseLose.start();
-                loseWinLose.start();
+                //loseWinLose.start();
+                loseWinLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                        2, 1);
                 winWin.join();
                 winLoseWin.join();
                 loseLose.join();
-                loseWinLose.join();
+                //loseWinLose.join();
             }
             catch (InterruptedException e) { }
-            retProbability = (winInSingleBattleProbability * winInSingleBattleProbability
+            while (loseWinLose == -1) {
+                continue;
+            }
+                    retProbability = (winInSingleBattleProbability * winInSingleBattleProbability
                     * winWin.getReturnProbability())
                     + (2 * (winInSingleBattleProbability * loseInSingleBattleProbability * winInSingleBattleProbability
                     * winLoseWin.getReturnProbability())) +
                     (loseInSingleBattleProbability * loseInSingleBattleProbability
                             * loseLose.getReturnProbability()) +
                     (2 * (loseInSingleBattleProbability * loseInSingleBattleProbability * winInSingleBattleProbability
-                            * loseWinLose.getReturnProbability()));
+                            * loseWinLose));
         }
         if ((myTroopLives == 2) && (enemyTroopLives == 1)) {
-            if (!addThreads(3)) { //we check whether we are allowed to create more threads. If not, we use
+            if (!addThreads(2)) { //we check whether we are allowed to create more threads. If not, we use
                 //our regular recursion in that same thread
                 returnProbability = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
                         myTroopLives, enemyTroopLives);
@@ -152,26 +162,31 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                     numberOfTroop, (numberOfEnemy + 1), 2, 2);
             ThreadedProbabilityCalculator winLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
                     numberOfTroop, (numberOfEnemy + 1), 1, 2);
-            ThreadedProbabilityCalculator loseLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
-                    (numberOfTroop + 1), numberOfEnemy, 2, 1);
+            //ThreadedProbabilityCalculator loseLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
+            //        (numberOfTroop + 1), numberOfEnemy, 2, 1);
+            float loseLose = -1;
             try {
                 win.start();
                 winLose.start();
-                loseLose.start();
+                //loseLose.start();
+                loseLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                        2, 1);
                 win.join();
                 winLose.join();
-                loseLose.join();
+                //loseLose.join();
             }
             catch (InterruptedException e) { }
+            while (loseLose == -1) {
+                continue;
+            }
             retProbability = (winInSingleBattleProbability
                     * win.getReturnProbability())
                     + (loseInSingleBattleProbability * winInSingleBattleProbability
                     * winLose.getReturnProbability()) +
-                    (loseInSingleBattleProbability * loseInSingleBattleProbability
-                            * loseLose.getReturnProbability());
+                    (loseInSingleBattleProbability * loseInSingleBattleProbability * loseLose);
         }
         if ((myTroopLives == 1) && (enemyTroopLives == 2)) {
-            if (!addThreads(3)) { //we check whether we are allowed to create more threads. If not, we use
+            if (!addThreads(2)) { //we check whether we are allowed to create more threads. If not, we use
                 //our regular recursion in that same thread
                 returnProbability = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
                         myTroopLives, enemyTroopLives);
@@ -181,23 +196,28 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                     numberOfTroop, (numberOfEnemy + 1), 1, 2);
             ThreadedProbabilityCalculator loseWin = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
                     (numberOfTroop + 1), numberOfEnemy, 2, 1);
-            ThreadedProbabilityCalculator lose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
-                    (numberOfTroop + 1), numberOfEnemy, 2, 2);
+            //ThreadedProbabilityCalculator lose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
+            //        (numberOfTroop + 1), numberOfEnemy, 2, 2);
+            float lose = -1;
             try {
                 winWin.start();
                 loseWin.start();
-                lose.start();
+                //lose.start();
+                lose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                        2, 2);
                 winWin.join();
                 loseWin.join();
-                lose.join();
+                //lose.join();
             }
             catch (InterruptedException e) { }
+            while (lose == -1) {
+                continue;
+            }
             retProbability = (winInSingleBattleProbability * winInSingleBattleProbability
                     * winWin.getReturnProbability())
                     + (loseInSingleBattleProbability * winInSingleBattleProbability
                     * loseWin.getReturnProbability()) +
-                    (loseInSingleBattleProbability
-                            * lose.getReturnProbability());
+                    (loseInSingleBattleProbability * lose);
         }
         returnProbability = retProbability;
     }
