@@ -10,7 +10,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
     // original program, compared to 30 seconds with this threaded calculator!
     private static ArrayList<Integer> myForces;
     private static ArrayList<Integer> enemyForces;
-    private static Map<String, Float> lookup;
+    private static Map<String, Double> lookup;
     private static int maxNumOfThreads;
     private static int numberOfThreads;
     private static boolean acceptParamsOnce;
@@ -22,7 +22,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
     private int numOfEnemy;
     private int mTroopLives;
     private int eTroopLives;
-    private float returnProbability;
+    private double returnProbability;
     public ThreadedProbabilityCalculator() {
         myForces = new ArrayList<Integer>();
         enemyForces = new ArrayList<Integer>();
@@ -59,7 +59,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                 String.valueOf(myLives) + "-" + String.valueOf(enemyLives));
     }
 
-    private void putValueInKey(String key, float value) {
+    private void putValueInKey(String key, double value) {
         lookup.put(key, value);
     }
 
@@ -82,11 +82,11 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
         numberOfThreads -= reducedThreads;
     }
 
-    public synchronized void setReturnProbability(float newReturn) {
+    public synchronized void setReturnProbability(double newReturn) {
         returnProbability = newReturn;
     }
 
-    public float getReturnProbability() {
+    public double getReturnProbability() {
         return returnProbability;
     }
 
@@ -106,7 +106,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
 
     public void threadRecursiveProbabilityCalculator(int numberOfTroop, int numberOfEnemy,
                                                 int myTroopLives, int enemyTroopLives) {
-        float retProbability = 0;
+        double retProbability = 0;
         String key = keyFactory(numberOfTroop, numberOfEnemy, myTroopLives, enemyTroopLives);
         if ((maxLosesNumber + 1) <= numberOfTroop) {
             // when we allow a certain num of loses, it means we can have a probability of winning and losing with the
@@ -128,10 +128,10 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             returnProbability = retProbability;
             return;
         }
-        float winInSingleBattleProbability;
-        float loseInSingleBattleProbability;
-        float dieShowWin;
-        float dieShowLose;
+        double winInSingleBattleProbability;
+        double loseInSingleBattleProbability;
+        double dieShowWin;
+        double dieShowLose;
         int powerOfMyTroop = myForces.get(numberOfTroop);
         int powerOfEnemy = enemyForces.get(numberOfEnemy);
         dieShowWin = (dieGameSize - powerOfEnemy) * (powerOfMyTroop);
@@ -142,7 +142,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             if (!addThreads(3)) { //we check whether we are allowed to create more threads. If not, we use
                 //our regular recursion in that same thread
                 if (!lookup.containsKey(key)) {
-                    float recursiveCalc = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
+                    double recursiveCalc = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
                             myTroopLives, enemyTroopLives);
                     putValueInKey(key, recursiveCalc);
                 }
@@ -161,7 +161,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                     (numberOfTroop + 1), numberOfEnemy, 2, 2);
             //ThreadedProbabilityCalculator loseWinLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
             //        (numberOfTroop + 1), numberOfEnemy, 2, 1);
-            float loseWinLose = -1;
+            double loseWinLose = -1;
             try {
                 //loseWinLose.start();
                 if (!lookup.containsKey(winWinKey)) {
@@ -234,7 +234,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             if (!addThreads(2)) { //we check whether we are allowed to create more threads. If not, we use
                 //our regular recursion in that same thread
                 if (!lookup.containsKey(key)) {
-                    float recursiveCalc = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
+                    double recursiveCalc = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
                             myTroopLives, enemyTroopLives);
                     putValueInKey(key, recursiveCalc);
                 }
@@ -250,7 +250,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                     numberOfTroop, (numberOfEnemy + 1), 1, 2);
             //ThreadedProbabilityCalculator loseLose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
             //        (numberOfTroop + 1), numberOfEnemy, 2, 1);
-            float loseLose = -1;
+            double loseLose = -1;
             try {
                 if (!lookup.containsKey(winKey)) {
                     win.start();
@@ -299,7 +299,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             if (!addThreads(2)) { //we check whether we are allowed to create more threads. If not, we use
                 //our regular recursion in that same thread
                 if (!lookup.containsKey(key)) {
-                    float recursiveCalc = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
+                    double recursiveCalc = RecursiveProbabilityCalculator(numberOfTroop, numberOfEnemy,
                             myTroopLives, enemyTroopLives);
                     putValueInKey(key, recursiveCalc);
                 }
@@ -318,7 +318,7 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
                     (numberOfTroop + 1), numberOfEnemy, 2, 1);
             //ThreadedProbabilityCalculator lose = new ThreadedProbabilityCalculator(dieGameSize, maxLosesNumber,
             //        (numberOfTroop + 1), numberOfEnemy, 2, 2);
-            float lose = -1;
+            double lose = -1;
             try {
                 //lose.start();
                 if (!lookup.containsKey(winWinKey)) {
@@ -368,9 +368,9 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
         returnProbability = retProbability;
     }
 
-    public float RecursiveProbabilityCalculator(int numberOfTroop, int numberOfEnemy,
+    public double RecursiveProbabilityCalculator(int numberOfTroop, int numberOfEnemy,
                                                 int myTroopLives, int enemyTroopLives) {
-        float retProbability = 0;
+        double retProbability = 0;
         String key = keyFactory(numberOfTroop, numberOfEnemy, myTroopLives, enemyTroopLives);
         if ((maxLosesNumber + 1) <= numberOfTroop) {
             // when we allow a certain num of loses, it means we can have a probability of winning and losing with the
@@ -386,10 +386,10 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             retProbability = 1;
             return  retProbability;
         }
-        float winInSingleBattleProbability;
-        float loseInSingleBattleProbability;
-        float dieShowWin;
-        float dieShowLose;
+        double winInSingleBattleProbability;
+        double loseInSingleBattleProbability;
+        double dieShowWin;
+        double dieShowLose;
         int powerOfMyTroop = myForces.get(numberOfTroop);
         int powerOfEnemy = enemyForces.get(numberOfEnemy);
         dieShowWin = (dieGameSize - powerOfEnemy) * (powerOfMyTroop);
@@ -402,22 +402,22 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             String loseWinLoseKey = keyFactory((numberOfTroop + 1), numberOfEnemy, 2, 1);
             String loseLoseKey = keyFactory((numberOfTroop + 1), numberOfEnemy, 2, 2);
             if (!lookup.containsKey(winWinKey)) {
-                float recursiveCalcWinWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
+                double recursiveCalcWinWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
                         2, 2);
                 putValueInKey(winWinKey, recursiveCalcWinWin);
             }
             if (!lookup.containsKey(winLoseWinKey)) {
-                float recursiveCalcWinLoseWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
+                double recursiveCalcWinLoseWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
                         1, 2);
                 putValueInKey(winLoseWinKey, recursiveCalcWinLoseWin);
             }
             if (!lookup.containsKey(loseWinLoseKey)) {
-                float recursiveLoseWinLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                double recursiveLoseWinLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
                         2, 1);
                 putValueInKey(loseWinLoseKey, recursiveLoseWinLose);
             }
             if (!lookup.containsKey(loseLoseKey)) {
-                float recursiveLoseLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                double recursiveLoseLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
                         2, 2);
                 putValueInKey(loseLoseKey, recursiveLoseLose);
             }
@@ -435,17 +435,17 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             String loseWinKey = keyFactory(numberOfTroop, (numberOfEnemy + 1), 1, 2);
             String loseLoseKey = keyFactory((numberOfTroop + 1), numberOfEnemy, 2, 1);
             if (!lookup.containsKey(winKey)) {
-                float recursiveWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
+                double recursiveWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
                         2, 2);
                 putValueInKey(winKey, recursiveWin);
             }
             if (!lookup.containsKey(loseWinKey)) {
-                float recursiveLoseWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
+                double recursiveLoseWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
                         1, 2);
                 putValueInKey(loseWinKey, recursiveLoseWin);
             }
             if (!lookup.containsKey(loseLoseKey)) {
-                float recursiveLoseLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                double recursiveLoseLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
                         2, 1);
                 putValueInKey(loseLoseKey, recursiveLoseLose);
             }
@@ -461,17 +461,17 @@ public class ThreadedProbabilityCalculator extends Thread{ //This class was crea
             String winLoseKey = keyFactory((numberOfTroop + 1), numberOfEnemy, 2, 1);
             String loseKey = keyFactory((numberOfTroop + 1), numberOfEnemy, 2, 2);
             if (!lookup.containsKey(winWinKey)) {
-                float recursiveWinWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
+                double recursiveWinWin = RecursiveProbabilityCalculator(numberOfTroop, (numberOfEnemy + 1),
                         1, 2);
                 putValueInKey(winWinKey, recursiveWinWin);
             }
             if (!lookup.containsKey(winLoseKey)) {
-                float recursiveWinLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                double recursiveWinLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
                         2, 1);
                 putValueInKey(winLoseKey, recursiveWinLose);
             }
             if (!lookup.containsKey(loseKey)) {
-                float recursiveLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
+                double recursiveLose = RecursiveProbabilityCalculator((numberOfTroop + 1), numberOfEnemy,
                         2, 2);
                 putValueInKey(loseKey, recursiveLose);
             }
